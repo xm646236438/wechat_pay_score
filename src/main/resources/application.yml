@@ -1,0 +1,28 @@
+server:
+  # 端口
+  port: 8080
+  # 项目访问路径
+  servlet:
+    context-path: /tomorrow
+  tomcat:
+    max-connections: 200
+    max-http-form-post-size: 0
+    uri-encoding: utf-8
+
+# 系统参数配置
+project:
+  # 公众账号ID
+  APP_ID: 你在无中生有暗度陈仓
+  # 商户号
+  MCH_ID: 你在无中生有暗度陈仓
+  # 秘钥
+  MCH_KEY: 你在无中生有暗度陈仓
+  # 服务ID
+  SERVICE_ID: "你在无中生有暗度陈仓"
+  # 证书序列号
+  SERIAL_NO: 你在无中生有暗度陈仓
+
+  # 回调地址ַ
+  NOTIFY_URL: https://blog.csdn.net/qq_38637558
+  # 创建支付分订单URL
+  CREATE_ORDER_URL: https://api.mch.weixin.qq.com/v3/payscore/serviceorder
