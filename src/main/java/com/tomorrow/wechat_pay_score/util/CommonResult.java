@@ -15,15 +15,13 @@ import lombok.ToString;
 @ToString
 public class CommonResult {
 
-	// 返回结果
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private int code;
 
-	// 异常后的通知，
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String message;
 
-	// 正常的时候返回给前台的数据
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Object data;
 
     public CommonResult(int code, String message, Object data) {

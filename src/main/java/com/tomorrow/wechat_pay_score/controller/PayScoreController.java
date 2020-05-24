@@ -30,4 +30,35 @@ public class PayScoreController {
     ) {
         return payScoreService.wakeUpPaymentPoints(orderNo, depositAmount);
     }
+
+    /**
+     * 查询支付分订单
+     *
+     * @param orderNo 订单号
+     * @return
+     */
+    @RequestMapping(value = "/query", method = RequestMethod.GET)
+    @ResponseBody
+    public CommonResult query(
+            @RequestParam(value = "order_no", required = false) String orderNo
+    ) {
+        return payScoreService.query(orderNo);
+    }
+
+
+    /**
+     * 完结支付分订单
+     *
+     * @param orderNo       订单号
+     * @param depositAmount 金额
+     * @return
+     */
+    @RequestMapping(value = "/refund", method = RequestMethod.GET)
+    @ResponseBody
+    public CommonResult refund(
+            @RequestParam(value = "order_no", required = false) String orderNo,
+            @RequestParam(value = "deposit_amount", required = false) int depositAmount
+    ) {
+        return payScoreService.refund(orderNo, depositAmount);
+    }
 }
