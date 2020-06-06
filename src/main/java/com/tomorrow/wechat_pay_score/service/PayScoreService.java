@@ -33,4 +33,12 @@ public interface PayScoreService {
      * @return
      */
     CommonResult refund(String orderNo, int amount);
+
+    /**
+     * 取消支付分订单
+     *
+     * @param orderNo
+     * @return
+     */
+    CommonResult cancel(String orderNo);
 }

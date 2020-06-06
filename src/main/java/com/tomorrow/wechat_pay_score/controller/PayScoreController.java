@@ -61,4 +61,18 @@ public class PayScoreController {
     ) {
         return payScoreService.refund(orderNo, depositAmount);
     }
+
+    /**
+     * 取消支付分订单
+     *
+     * @param orderNo       订单号
+     * @return
+     */
+    @RequestMapping(value = "/cancel", method = RequestMethod.GET)
+    @ResponseBody
+    public CommonResult cancel(
+            @RequestParam(value = "order_no", required = false) String orderNo
+    ) {
+        return payScoreService.cancel(orderNo);
+    }
 }

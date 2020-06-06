@@ -26,3 +26,5 @@ project:
   NOTIFY_URL: https://blog.csdn.net/qq_38637558
   # 创建支付分订单URL
   CREATE_ORDER_URL: https://api.mch.weixin.qq.com/v3/payscore/serviceorder
+  # 取消支付分订单URL
+  CANCEL_ORDER_URL: https://api.mch.weixin.qq.com/v3/payscore/serviceorder

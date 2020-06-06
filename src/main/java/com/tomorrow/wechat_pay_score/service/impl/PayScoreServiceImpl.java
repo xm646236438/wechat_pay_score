@@ -3,6 +3,7 @@ package com.tomorrow.wechat_pay_score.service.impl;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.http.Header;
 import cn.hutool.http.HttpRequest;
+import cn.hutool.http.HttpResponse;
 import com.alibaba.fastjson.JSONObject;
 import com.tomorrow.wechat_pay_score.service.PayScoreService;
 import com.tomorrow.wechat_pay_score.util.CommonResult;
@@ -40,6 +41,8 @@ public class PayScoreServiceImpl implements PayScoreService {
     public String notifyURL;
     @Value("${project.CREATE_ORDER_URL}")
     public String createOrderUrl;
+    @Value("${project.CANCEL_ORDER_URL}")
+    public String cancelOrderUrl;
 
 
     @Override
@@ -85,7 +88,7 @@ public class PayScoreServiceImpl implements PayScoreService {
         SortedMap<Object, Object> result = new TreeMap<Object, Object>();
         result.put("mch_id", mchId);
         result.put("package", jsonObject.getString("package"));
-        result.put("timeStamp", String.valueOf(System.currentTimeMillis() / 1000));
+        result.put("timestamp", String.valueOf(System.currentTimeMillis() / 1000));
         result.put("nonce_str", Utils.getRandomString(32));
         result.put("sign_type", "HMAC-SHA256");
         // 签名
@@ -140,8 +143,8 @@ public class PayScoreServiceImpl implements PayScoreService {
         parameters.put("service_id", serviceId);
         List<JSONObject> postPaymentsList = new ArrayList<>();
         JSONObject postPayments = new JSONObject();
-        postPayments.put("name", "电柠檬租借充电宝费用");
-        postPayments.put("amount ", amount);
+        postPayments.put("name", "test");
+        postPayments.put("amount", amount);
         postPaymentsList.add(postPayments);
         parameters.put("post_payments", postPaymentsList);
         parameters.put("total_amount", amount);
@@ -171,7 +174,6 @@ public class PayScoreServiceImpl implements PayScoreService {
             case "CREATED":
                 return CommonResult.fail(500, "订单未进行");
             case "DOING":
-                return CommonResult.fail(500, "订单进行中");
             case "DONE":
                 return CommonResult.success("SUCCESS", jsonObject);
             case "REVOKED":
@@ -181,5 +183,36 @@ public class PayScoreServiceImpl implements PayScoreService {
             default:
                 return CommonResult.fail(500, "网络异常");
         }
+    }
+
+    @Override
+    public CommonResult cancel(String orderNo) {
+        JSONObject parameters = new JSONObject();
+        parameters.put("appid", appId);
+        parameters.put("service_id", serviceId);
+        parameters.put("reason", "业务流程取消");
+        JSONObject jsonObject;
+        cancelOrderUrl = cancelOrderUrl + "/" + orderNo + "/cancel";
+        try {
+            log.info("请求支付分参数:    " + cancelOrderUrl);
+            log.info("请求支付分参数:    " + parameters);
+            HttpResponse execute = HttpRequest.post(cancelOrderUrl)
+                    .header(Header.CONTENT_TYPE, "application/json")
+                    .header(Header.ACCEPT, "application/json")
+                    .header("Authorization", "WECHATPAY2-SHA256-RSA2048" + " "
+                            + PayScore.getToken("POST", cancelOrderUrl, JSONObject.toJSONString(parameters), mchId, serialNo, "pem/apiclient_key.pem"))//头信息，多个头信息多次调用此方法即可
+                    .body(JSONObject.toJSONString(parameters))
+                    .execute();
+            String header = execute.header("Request-ID");
+            log.info("请求支付分返回参数HEAD标识:    " + header);
+            jsonObject = JSONObject.parseObject(execute.body());
+            log.info("请求支付分返回参数:    " + jsonObject);
+        } catch (Exception e) {
+            throw new SpringExceptionResolver("500", "网络超时!");
+        }
+        if (!StringUtils.isEmpty(jsonObject.getString("code"))) {
+            return CommonResult.fail(500, jsonObject.getString("message"));
+        }
+        return CommonResult.success("SUCCESS", jsonObject);
     }
 }
