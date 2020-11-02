@@ -1,6 +1,9 @@
 package com.tomorrow.wechat_pay_score.service;
 
 import com.tomorrow.wechat_pay_score.util.CommonResult;
+import org.springframework.http.ResponseEntity;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Tomorrow
@@ -41,4 +44,12 @@ public interface PayScoreService {
      * @return
      */
     CommonResult cancel(String orderNo);
+
+    /**
+     * 小程序免押金回调通知
+     *
+     * @param request
+     * @return
+     */
+    ResponseEntity payScoreCallbackNotification(HttpServletRequest request);
 }

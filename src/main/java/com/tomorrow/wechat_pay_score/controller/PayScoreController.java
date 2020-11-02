@@ -3,7 +3,10 @@ package com.tomorrow.wechat_pay_score.controller;
 import com.tomorrow.wechat_pay_score.service.PayScoreService;
 import com.tomorrow.wechat_pay_score.util.CommonResult;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Tomorrow
@@ -65,7 +68,7 @@ public class PayScoreController {
     /**
      * 取消支付分订单
      *
-     * @param orderNo       订单号
+     * @param orderNo 订单号
      * @return
      */
     @RequestMapping(value = "/cancel", method = RequestMethod.GET)
@@ -74,5 +77,16 @@ public class PayScoreController {
             @RequestParam(value = "order_no", required = false) String orderNo
     ) {
         return payScoreService.cancel(orderNo);
+    }
+
+    /**
+     * 小程序免押金回调通知
+     *
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/payScoreCallbackNotification")
+    public ResponseEntity payScoreCallbackNotification(HttpServletRequest request) {
+        return payScoreService.payScoreCallbackNotification(request);
     }
 }
