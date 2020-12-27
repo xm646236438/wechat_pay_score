@@ -125,6 +125,9 @@ public class PayScoreServiceImpl implements PayScoreService {
             case "CREATED":
                 return CommonResult.fail(500, "订单未进行");
             case "DOING":
+                // 当用户微信里面没有钱, 且对应绑定的银行卡里面也没有钱, 也就是说扣款失败的时候, 会返回该状态
+                // 当用户的微信里面有钱了, 微信会主动扣款, 并通知我们
+                return CommonResult.fail(500, "扣款失败");
             case "DONE":
                 return CommonResult.success("SUCCESS", jsonObject);
             case "REVOKED":
@@ -174,6 +177,9 @@ public class PayScoreServiceImpl implements PayScoreService {
             case "CREATED":
                 return CommonResult.fail(500, "订单未进行");
             case "DOING":
+                // 当用户微信里面没有钱, 且对应绑定的银行卡里面也没有钱, 也就是说扣款失败的时候, 会返回该状态
+                // 当用户的微信里面有钱了, 微信会主动扣款, 并通知我们
+                return CommonResult.fail(500, "扣款失败");
             case "DONE":
                 return CommonResult.success("SUCCESS", jsonObject);
             case "REVOKED":
