@@ -4,19 +4,25 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.http.Header;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.tomorrow.wechat_pay_score.service.PayScoreService;
 import com.tomorrow.wechat_pay_score.util.CommonResult;
 import com.tomorrow.wechat_pay_score.util.Utils;
 import com.tomorrow.wechat_pay_score.util.exception.SpringExceptionResolver;
 import com.tomorrow.wechat_pay_score.util.http.HttpUrlUtil;
+import com.tomorrow.wechat_pay_score.util.wechart.ApiV3Util;
 import com.tomorrow.wechat_pay_score.util.wechart.HMACSHA256;
 import com.tomorrow.wechat_pay_score.util.wechart.PayScore;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.ServletInputStream;
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 /**
@@ -32,6 +38,8 @@ public class PayScoreServiceImpl implements PayScoreService {
     public String mchId;
     @Value("${project.MCH_KEY}")
     public String mchKey;
+    @Value("${project.MCH_KEY_VVV}")
+    public String mchKeyVVV;
     @Value("${project.SERVICE_ID}")
     public String serviceId;
     @Value("${project.SERIAL_NO}")
@@ -220,5 +228,56 @@ public class PayScoreServiceImpl implements PayScoreService {
             return CommonResult.fail(500, jsonObject.getString("message"));
         }
         return CommonResult.success("SUCCESS", jsonObject);
+    }
+
+    @Override
+    public ResponseEntity payScoreCallbackNotification(HttpServletRequest request) {
+        try {
+            ServletInputStream servletInputStream = request.getInputStream();
+            int contentLength = request.getContentLength();
+            byte[] callBackInBytes = new byte[contentLength];
+            servletInputStream.read(callBackInBytes, 0, contentLength);
+            String callBackIn = new String(callBackInBytes, "UTF-8");
+            // 模拟确认订单回调通知API
+//            String callBackIn = "{\"id\":\"123\",\"create_time\":\"2020-11-02T16:31:35+08:00\",\"resource_type\":\"encrypt-resource\",\"event_type\":\"PAYSCORE.USER_CONFIRM\",\"summary\":\"微信支付分服务订单用户已确认\",\"resource\":{\"original_type\":\"payscore\",\"algorithm\":\"AEAD_AES_256_GCM\",\"ciphertext\":\"1111111111==\",\"associated_data\":\"payscore\",\"nonce\":\"12321321\"}}";
+            // 模拟支付成功回调通知API
+//            String callBackIn = "{\"id\":\"123\",\"create_time\":\"2020-11-02T16:31:35+08:00\",\"resource_type\":\"encrypt-resource\",\"event_type\":\"PAYSCORE.USER_PAID\",\"summary\":\"微信支付分服务订单支付成功\",\"resource\":{\"original_type\":\"payscore\",\"algorithm\":\"AEAD_AES_256_GCM\",\"ciphertext\":\"1111111111==\",\"associated_data\":\"payscore\",\"nonce\":\"12321321\"}}";
+
+            log.info("【微信支付分免密支付回调】：" + callBackIn);
+
+
+            JSONObject notifyIn = JSONObject.parseObject(callBackIn);
+            if (notifyIn == null) {
+                log.error("参数不正确，反序列化失败");
+                return new ResponseEntity(HttpStatus.EXPECTATION_FAILED);
+            }
+
+            //解密回调信息
+            JSONObject resource = notifyIn.getJSONObject("resource");
+            byte[] key = (mchKeyVVV).getBytes("UTF-8");
+            ApiV3Util aesUtil = new ApiV3Util(key);
+            String decryptToString = aesUtil.decryptToString(resource.getString("associated_data").getBytes("UTF-8"), resource.getString("nonce").getBytes("UTF-8"), resource.getString("ciphertext"));
+
+            if (StringUtils.isEmpty(decryptToString)) {
+                return new ResponseEntity(HttpStatus.EXPECTATION_FAILED);
+            }
+            log.info("【支付分支付回调解密结果：】" + decryptToString);
+
+
+            // 用户确认成功
+            if ("PAYSCORE.USER_CONFIRM".equals(notifyIn.get("event_type"))) {
+                log.info("用户确认成功");
+                // 处理业务逻辑
+            }
+            // 支付成功
+            if ("PAYSCORE.USER_PAID".equals(notifyIn.get("event_type"))) {
+                log.info("用户支付成功");
+                // 处理业务逻辑
+            }
+            return new ResponseEntity(HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("微信支付回调处理异常，" + e.toString());
+            return new ResponseEntity(HttpStatus.EXPECTATION_FAILED);
+        }
     }
 }

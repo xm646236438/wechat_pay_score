@@ -17,12 +17,14 @@ project:
   MCH_ID: 你在无中生有暗度陈仓
   # 秘钥
   MCH_KEY: 你在无中生有暗度陈仓
+  # 商户V3秘钥
+  MCH_KEY_VVV: 你在无中生有暗度陈仓
   # 服务ID
   SERVICE_ID: "你在无中生有暗度陈仓"
   # 证书序列号
   SERIAL_NO: 你在无中生有暗度陈仓
 
-  # 回调地址ַ
+  # 回调地址ַ  HTTPS 域名, 才能接受到
   NOTIFY_URL: https://blog.csdn.net/qq_38637558
   # 创建支付分订单URL
   CREATE_ORDER_URL: https://api.mch.weixin.qq.com/v3/payscore/serviceorder
